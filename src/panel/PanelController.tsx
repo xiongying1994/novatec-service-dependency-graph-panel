@@ -106,6 +106,7 @@ export class PanelController extends PureComponent<Props, PanelState> {
     this.processData();
   }
 
+  // 处理数据 写入currentData
   processQueryData(data: DataFrame[]) {
     this.validQueryTypes = this.hasOnlyTableQueries(data);
     const graphData = this.preProcessor.processData(data);
@@ -125,13 +126,18 @@ export class PanelController extends PureComponent<Props, PanelState> {
     return result;
   }
 
+  // 分析数据
   processData() {
     var inputData: DataFrame[] = this.props.data.series;
+    console.log('数据内容：', this.props.data.series);
+    // 使用 默认 数据内容
     if (this.getSettings(true).dataMapping.showDummyData) {
       inputData = data;
     }
     this.processQueryData(inputData);
     const graph: IntGraph = this.graphGenerator.generateGraph(this.currentData.graph);
+
+    console.log('处理后的数据内容：', graph);
     return graph;
   }
 
@@ -219,10 +225,12 @@ export class PanelController extends PureComponent<Props, PanelState> {
     });
   }
 
+  // 渲染
   render() {
     const data = this.processData();
     const error = this.getError();
     if (error === null) {
+      // 加载画布内容
       return (
         <div>
           <div

@@ -4,7 +4,8 @@ import React, { PureComponent } from 'react';
 import { PanelController } from '../PanelController';
 import cyCanvas from 'cytoscape-canvas';
 import cola from 'cytoscape-cola';
-import layoutOptions from '../layout_options';
+// import layoutOptions from '../layout_options';
+import xytestTepOne from '../layout_xy1';
 import { Statistics } from '../statistics/Statistics';
 import _ from 'lodash';
 import {
@@ -76,16 +77,21 @@ export class ServiceDependencyGraph extends PureComponent<PanelState, PanelState
     this.templateSrv = getTemplateSrv();
   }
 
+  // 组件安装 componentDid 主键部分  Mount 安装
+  // todo 关键方法！ 创建 cytoscape 画布！cytoscape.js的核心内容
   componentDidMount() {
     const cy: any = cytoscape({
       container: this.ref,
       zoom: this.state.zoom,
+      // 数据存放字段 elements
+      // {...this.props}是props所提供的语法糖，可以将父组件的所有属性复制给子组件
       elements: this.props.data,
       layout: {
         name: 'cola',
       },
       style: [
         {
+          // 节点
           selector: 'node',
           css: {
             'background-color': '#fbfbfb',
@@ -94,6 +100,7 @@ export class ServiceDependencyGraph extends PureComponent<PanelState, PanelState
         },
 
         {
+          // 父节点
           selector: 'node:parent',
           css: {
             'background-opacity': 0.05,
@@ -102,6 +109,7 @@ export class ServiceDependencyGraph extends PureComponent<PanelState, PanelState
         },
 
         {
+          // 边
           selector: 'edge',
           style: {
             'curve-style': 'bezier',
@@ -113,6 +121,7 @@ export class ServiceDependencyGraph extends PureComponent<PanelState, PanelState
       wheelSensitivity: 0.125,
     });
 
+    console.log('组件安装开始： componentDidMount ： ', cy);
     var graphCanvas = new CanvasDrawer(
       this,
       cy,
@@ -120,8 +129,14 @@ export class ServiceDependencyGraph extends PureComponent<PanelState, PanelState
         zIndex: 1,
       })
     );
-
+    console.log(
+      '画布节点信息准备step => 0：',
+      cy.nodes().toArray()[0].position().x,
+      cy.nodes().toArray()[0].position().y
+    );
+    // 添加触发器
     cy.on('render cyCanvas.resize', () => {
+      //
       graphCanvas.repaint(true);
     });
     cy.on('select', 'node', () => this.onSelectionChange());
@@ -130,9 +145,11 @@ export class ServiceDependencyGraph extends PureComponent<PanelState, PanelState
       cy: cy,
       graphCanvas: graphCanvas,
     });
+    // 启动
     graphCanvas.start();
   }
 
+  // 组件部分  更新
   componentDidUpdate() {
     this._updateGraph(this.props.data);
   }
@@ -262,10 +279,12 @@ export class ServiceDependencyGraph extends PureComponent<PanelState, PanelState
     });
   }
 
+  // 运行布局
   runLayout(unlockNodes = false) {
     const that = this;
     const options = {
-      ...layoutOptions,
+      // ...layoutOptions,
+      ...xytestTepOne,
 
       stop: function () {
         if (unlockNodes) {
@@ -277,6 +296,8 @@ export class ServiceDependencyGraph extends PureComponent<PanelState, PanelState
       },
     };
 
+    console.log("加载的布局类型：", options.name)
+    // 运行布局 layout().run()
     this.state.cy.layout(options).run();
   }
 

@@ -70,14 +70,18 @@ export default class CanvasDrawer {
   dashAnimationOffset = 0;
 
   constructor(ctrl: ServiceDependencyGraph, cy: cytoscape.Core, cyCanvas: CyCanvas) {
+    // 画图组件（cy.cyCanvas = cyCanvas  画图组件中存在画布信息）
     this.cytoscape = cy;
+    // 画布信息
     this.cyCanvas = cyCanvas;
     this.controller = ctrl;
     this.particleEngine = new ParticleEngine(this);
     this.collisionDetector = new CollisionDetector();
+    console.log('cytoscape 初始化内容：', this.cytoscape);
 
     this.pixelRatio = window.devicePixelRatio || 1;
 
+    // 获取原有画布信息
     this.canvas = cyCanvas.getCanvas();
     const ctx = this.canvas.getContext('2d');
     if (ctx) {
@@ -86,7 +90,9 @@ export default class CanvasDrawer {
       console.error('Could not get 2d canvas context.');
     }
 
+    // 创建画布 -- 重新渲染画布
     this.offscreenCanvas = document.createElement('canvas');
+    // 屏幕外 上下文 在画布上进行获取 '2d' ，进行
     this.offscreenContext = this.offscreenCanvas.getContext('2d');
 
     this.repaint(true);
@@ -165,25 +171,45 @@ export default class CanvasDrawer {
 
   start() {
     console.log('Starting graph logic');
+    console.log(
+      '画布节点信息准备step => 1：',
+      this.cytoscape.nodes().toArray()[0].position().x,
+      this.cytoscape.nodes().toArray()[0].position().y
+    );
 
     const that = this;
+    // 启用 强大的前端动画神器 ，执行 repaintWrapper 的回调函数，指定在下次重绘之前，调用 repaint() 方法
     const repaintWrapper = () => {
       that.repaint();
       window.requestAnimationFrame(repaintWrapper);
     };
 
+    // 动画框架     repaintWrapper  重新绘制  包装
     window.requestAnimationFrame(repaintWrapper);
 
+    console.log(
+      '画布节点信息准备step => 2：',
+      this.cytoscape.nodes().toArray()[0].position().x,
+      this.cytoscape.nodes().toArray()[0].position().y
+    );
+
+    // 定时执行回调，计数帧数
     setInterval(() => {
+      // 回调函数
+      console.log('定时函数回调！');
+      // 刷新频率计数
       that.fpsCounter = that.frameCounter;
+      // 帧计数器
       that.frameCounter = 0;
     }, 1000);
   }
 
   startAnimation() {
+    console.log('动画开始！！！！！');
     this.particleEngine.start();
   }
 
+  // 停止动画
   stopAnimation() {
     this.particleEngine.stop();
     this.repaint();
@@ -203,26 +229,43 @@ export default class CanvasDrawer {
     return false;
   }
 
+  // 画布绘图方法！
   repaint(forceRepaint = false) {
     if (!forceRepaint && this._skipFrame()) {
       return;
     }
     this.lastRenderTime = Date.now();
 
+    console.log(
+      '画布节点信息准备step => 3：',
+      this.cytoscape.nodes().toArray()[0].position().x,
+      this.cytoscape.nodes().toArray()[0].position().y
+    );
     const ctx = this.context;
     const cyCanvas = this.cyCanvas;
     const offscreenCanvas = this.offscreenCanvas;
     const offscreenContext = this.offscreenContext;
+    // 碰撞检测器
     this.collisionDetector.reset();
 
+    // offscreenCanvas 屏幕外画布
     offscreenCanvas.width = this.canvas.width;
     offscreenCanvas.height = this.canvas.height;
 
-    // offscreen rendering
+    // offscreen rendering  离屏渲染
     this._setTransformation(offscreenContext);
 
+    // collection()方法返回一个空的集合，用来创建新集合
     this.selectionNeighborhood = this.cytoscape.collection();
+    // .$  获取图中与选择器或过滤器函数匹配的元素
     const selection = this.cytoscape.$(':selected');
+    // console.log('重新画：点击归位触发的方法 repaint-', selection);
+    //
+    // console.log(
+    //   '画布节点信息准备step => 4：',
+    //   this.cytoscape.nodes().toArray()[0].position().x,
+    //   this.cytoscape.nodes().toArray()[0].position().y
+    // );
     selection.forEach((element: cytoscape.SingularElementArgument) => {
       this.selectionNeighborhood.merge(element);
 
@@ -237,13 +280,16 @@ export default class CanvasDrawer {
       }
     });
 
+    // _drawEdgeAnimation  绘画  边   动画
     this._drawEdgeAnimation(offscreenContext);
+    // _drawNodes  绘画  节点
     this._drawNodes(offscreenContext);
 
-    // static element rendering
-    // cyCanvas.resetTransform(ctx);
+    // static element rendering   静态元素渲染
+    // cyCanvas.resetTransform(ctx);  重设   变换、改观
     cyCanvas.clear(ctx);
     if (this.controller.getSettings(true).showDebugInformation) {
+      // 显示画布刷新帧数
       this._drawDebugInformation();
     }
 
@@ -483,6 +529,7 @@ export default class CanvasDrawer {
     return newPoint;
   }
 
+  // 绘画 微粒，粒子系统
   _drawParticle(drawCtx: DrawContext, particles: Particle[], index: number) {
     const { ctx, now, xDirection, yDirection, xMinLimit, xMaxLimit, yMinLimit, yMaxLimit, sourcePoint } = drawCtx;
 
@@ -502,29 +549,39 @@ export default class CanvasDrawer {
     }
   }
 
+  // 绘画 所有节点
   _drawNodes(ctx: CanvasRenderingContext2D) {
     const that = this;
     const cy = this.cytoscape;
+    console.log(
+      '画布节点信息准备step => 5：',
+      this.cytoscape.nodes().toArray()[0].position().x,
+      this.cytoscape.nodes().toArray()[0].position().y
+    );
 
     // Draw model elements
     const nodes = cy.nodes().toArray();
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
+      // 选择 临近
       if (that.selectionNeighborhood.empty() || that.selectionNeighborhood.has(node)) {
+        // 全局 阿尔法
         ctx.globalAlpha = 1;
       } else {
         ctx.globalAlpha = 0.25;
       }
 
-      // draw the node
+      // draw the node 父级节点
       if (node.data().type === 'PARENT') {
         if (
           node.data().layer >= this.controller.state.controller.state.currentLayer ||
           node.data().layer === undefined
         ) {
+          // console.log('父节点绘画');
           that._drawNode(ctx, node);
         }
       } else {
+        // console.log('普通节点绘画');
         that._drawNode(ctx, node);
       }
 
@@ -535,7 +592,9 @@ export default class CanvasDrawer {
     }
   }
 
+  // 绘画节点
   _drawNode(ctx: CanvasRenderingContext2D, node: cytoscape.NodeSingular) {
+    // console.log('打印节点坐标：', node.data().id, node.position().x, node.position().y);
     const cy = this.cytoscape;
     const type = node.data('type');
     const metrics: IntGraphMetrics = node.data('metrics');
@@ -563,7 +622,7 @@ export default class CanvasDrawer {
         unknownPct = 0;
       }
 
-      // drawing the donut
+      // drawing the donut  甜甜圈，圆环
       this._drawDonut(ctx, node, 15, 5, 0.5, [errorPct, unknownPct, healthyPct]);
 
       // drawing the baseline status
@@ -571,10 +630,12 @@ export default class CanvasDrawer {
       if (showBaselines && responseTime >= 0 && threshold >= 0) {
         const thresholdViolation = threshold < responseTime;
 
+        // 绘画 阈值冲程  门槛，起点   一击，一举
         this._drawThresholdStroke(ctx, node, thresholdViolation, 15, 5, 0.5);
       }
       this._drawServiceIcon(ctx, node);
     } else {
+      // 绘画 外部服务
       this._drawExternalService(ctx, node);
     }
 
@@ -584,6 +645,7 @@ export default class CanvasDrawer {
     }
   }
 
+  // 绘画  服务图标
   _drawServiceIcon(ctx: CanvasRenderingContext2D, node: cytoscape.NodeSingular) {
     const nodeId: string = node.id();
     const iconMappings = this.controller.getSettings(true).icons;
@@ -608,6 +670,7 @@ export default class CanvasDrawer {
     }
   }
 
+  // 绘画 节点 统计
   _drawNodeStatistics(ctx: CanvasRenderingContext2D, node: cytoscape.NodeSingular) {
     const { timeFormat } = this.controller.getSettings(true);
     const lines: string[] = [];
@@ -645,6 +708,7 @@ export default class CanvasDrawer {
     }
   }
 
+  // 绘画 阈值冲程  门槛，起点   一击，一举
   _drawThresholdStroke(
     ctx: CanvasRenderingContext2D,
     node: cytoscape.NodeSingular,
@@ -715,6 +779,7 @@ export default class CanvasDrawer {
     }
   }
 
+  // 画节点 标签
   _drawNodeLabel(ctx: CanvasRenderingContext2D, node: cytoscape.NodeSingular) {
     const pos = node.position();
     let label: string = node.id();
@@ -763,10 +828,11 @@ export default class CanvasDrawer {
 
     ctx.font = '12px monospace';
     ctx.fillStyle = 'white';
-    ctx.fillText('Frames per Second: ' + this.fpsCounter, 10, 12);
-    ctx.fillText('Particles: ' + this.particleEngine.count(), 10, 24);
+    ctx.fillText('Frames per Second（每秒帧数）: ' + this.fpsCounter, 10, 12);
+    ctx.fillText('Particles（粒子量）: ' + this.particleEngine.count(), 10, 24);
   }
 
+  // 绘画  甜甜圈，圆环
   _drawDonut(
     ctx: CanvasRenderingContext2D,
     node: cytoscape.NodeSingular,
@@ -780,6 +846,7 @@ export default class CanvasDrawer {
     let currentArc = -Math.PI / 2; // offset
 
     ctx.beginPath();
+    // angle 角，斜角，角度
     ctx.arc(cX, cY, radius + strokeWidth, 0, 2 * Math.PI, false);
     ctx.closePath();
     ctx.fillStyle = 'white';

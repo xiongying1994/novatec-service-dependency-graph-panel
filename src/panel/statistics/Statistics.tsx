@@ -97,11 +97,11 @@ export const Statistics: React.FC<StatisticsProps> = ({
           {drilldownLink}
         </div>
 
-        <div className="secondHeader--selection">Statistics</div>
+        <div className="secondHeader--selection">统计信息</div>
         <table className="table--selection">
           <tr className="table--selection--head">
-            <th>Name</th>
-            <th className="table--th--selectionMedium">Value</th>
+            <th>名称</th>
+            <th className="table--th--selectionMedium">参数</th>
           </tr>
           {requests}
           {errors}
@@ -110,12 +110,8 @@ export const Statistics: React.FC<StatisticsProps> = ({
           {baseline}
         </table>
 
-        <NodeStatistics
-          nodeList={receiving}
-          noDataText="No incoming statistics available."
-          title="Incoming Statistics"
-        />
-        <NodeStatistics nodeList={sending} noDataText="No outgoing statistics available." title="Outgoing Statistics" />
+        <NodeStatistics nodeList={receiving} noDataText="没有可输入的统计信息." title="输入统计信息" />
+        <NodeStatistics nodeList={sending} noDataText="没有可输出的统计信息." title="输出统计信息" />
       </div>
     );
   }

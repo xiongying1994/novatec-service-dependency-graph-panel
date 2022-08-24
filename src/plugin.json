@@ -1,7 +1,7 @@
 {
   "type": "panel",
-  "name": "Service Dependency Graph",
-  "id": "novatec-sdg-panel",
+  "name": "测试版本面板",
+  "id": "novatec-sdg-panel-test0821",
   "info": {
     "version": "4.0.3",
     "updated": "2021-08-26",

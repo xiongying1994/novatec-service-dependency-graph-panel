@@ -30,6 +30,7 @@ export default class ParticleEngine {
     this.animating = false;
   }
 
+  // 动画化
   animate() {
     const that = this;
     if (!that.animating) {

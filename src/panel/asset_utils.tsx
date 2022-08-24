@@ -3,7 +3,7 @@ import { IconResource } from 'types';
 
 export default {
   getAssetUrl(assetName: string) {
-    var baseUrl = 'public/plugins/novatec-sdg-panel';
+    var baseUrl = 'public/plugins/novatec-sdg-panel-test0821';
     return baseUrl + '/assets/icons/' + assetName;
   },
 
