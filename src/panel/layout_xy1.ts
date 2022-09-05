@@ -17,7 +17,7 @@ const options = {
   animationEasing: undefined as undefined,
 
   // The duration of the animation for animate:'end'  动画的持续时间：“结束”
-  animationDuration: undefined as undefined,
+  animationDuration: 100,
 
   // A function that determines whether the node should be animated  确定节点是否应设置动画的函数
   // All nodes animated by default on animate enabled  默认情况下，启用“动画”时所有节点都已设置动画
@@ -53,7 +53,7 @@ const options = {
   nodeRepulsion: 2048,
 
   // Node repulsion (overlapping) multiplier 节点排斥（重叠）乘数
-  nodeOverlap: 4,
+  nodeOverlap: 2000,
 
   // Ideal edge (non nested) length 理想边（非嵌套）长度
   idealEdgeLength: 32,

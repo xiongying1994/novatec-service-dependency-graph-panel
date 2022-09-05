@@ -77,7 +77,6 @@ export default class CanvasDrawer {
     this.controller = ctrl;
     this.particleEngine = new ParticleEngine(this);
     this.collisionDetector = new CollisionDetector();
-    console.log('cytoscape 初始化内容：', this.cytoscape);
 
     this.pixelRatio = window.devicePixelRatio || 1;
 
@@ -171,12 +170,6 @@ export default class CanvasDrawer {
 
   start() {
     console.log('Starting graph logic');
-    console.log(
-      '画布节点信息准备step => 1：',
-      this.cytoscape.nodes().toArray()[0].position().x,
-      this.cytoscape.nodes().toArray()[0].position().y
-    );
-
     const that = this;
     // 启用 强大的前端动画神器 ，执行 repaintWrapper 的回调函数，指定在下次重绘之前，调用 repaint() 方法
     const repaintWrapper = () => {
@@ -187,16 +180,8 @@ export default class CanvasDrawer {
     // 动画框架     repaintWrapper  重新绘制  包装
     window.requestAnimationFrame(repaintWrapper);
 
-    console.log(
-      '画布节点信息准备step => 2：',
-      this.cytoscape.nodes().toArray()[0].position().x,
-      this.cytoscape.nodes().toArray()[0].position().y
-    );
-
     // 定时执行回调，计数帧数
     setInterval(() => {
-      // 回调函数
-      console.log('定时函数回调！');
       // 刷新频率计数
       that.fpsCounter = that.frameCounter;
       // 帧计数器
@@ -236,11 +221,6 @@ export default class CanvasDrawer {
     }
     this.lastRenderTime = Date.now();
 
-    console.log(
-      '画布节点信息准备step => 3：',
-      this.cytoscape.nodes().toArray()[0].position().x,
-      this.cytoscape.nodes().toArray()[0].position().y
-    );
     const ctx = this.context;
     const cyCanvas = this.cyCanvas;
     const offscreenCanvas = this.offscreenCanvas;
@@ -553,11 +533,11 @@ export default class CanvasDrawer {
   _drawNodes(ctx: CanvasRenderingContext2D) {
     const that = this;
     const cy = this.cytoscape;
-    console.log(
-      '画布节点信息准备step => 5：',
-      this.cytoscape.nodes().toArray()[0].position().x,
-      this.cytoscape.nodes().toArray()[0].position().y
-    );
+    // console.log(
+    //   '画布节点信息准备step => 5：',
+    //   this.cytoscape.nodes().toArray()[0].position().x,
+    //   this.cytoscape.nodes().toArray()[0].position().y
+    // );
 
     // Draw model elements
     const nodes = cy.nodes().toArray();

@@ -5,7 +5,7 @@ import { PanelController } from '../PanelController';
 import cyCanvas from 'cytoscape-canvas';
 import cola from 'cytoscape-cola';
 // import layoutOptions from '../layout_options';
-import xytestTepOne from '../layout_xy1';
+import xytestTepOne from '../layout_xy2';
 import { Statistics } from '../statistics/Statistics';
 import _ from 'lodash';
 import {
@@ -121,18 +121,12 @@ export class ServiceDependencyGraph extends PureComponent<PanelState, PanelState
       wheelSensitivity: 0.125,
     });
 
-    console.log('组件安装开始： componentDidMount ： ', cy);
     var graphCanvas = new CanvasDrawer(
       this,
       cy,
       cy.cyCanvas({
         zIndex: 1,
       })
-    );
-    console.log(
-      '画布节点信息准备step => 0：',
-      cy.nodes().toArray()[0].position().x,
-      cy.nodes().toArray()[0].position().y
     );
     // 添加触发器
     cy.on('render cyCanvas.resize', () => {
@@ -296,7 +290,7 @@ export class ServiceDependencyGraph extends PureComponent<PanelState, PanelState
       },
     };
 
-    console.log("加载的布局类型：", options.name)
+    console.log('加载的布局类型：', options.name);
     // 运行布局 layout().run()
     this.state.cy.layout(options).run();
   }
